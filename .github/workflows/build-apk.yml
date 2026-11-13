@@ -1,0 +1,48 @@
+name: Build APK
+
+on:
+  workflow_dispatch:
+    inputs:
+      app_url:
+        description: "Aapki deploy ki hui website ka link (https://...)"
+        required: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Install packages
+        run: npm install
+
+      - name: Website link set karo
+        env:
+          APP_URL: ${{ github.event.inputs.app_url }}
+        run: |
+          node -e "const fs=require('fs');const c=JSON.parse(fs.readFileSync('capacitor.config.json'));c.server.url=process.env.APP_URL;fs.writeFileSync('capacitor.config.json',JSON.stringify(c,null,2))"
+
+      - name: Android project banao
+        run: |
+          npx cap add android
+          npx cap sync android
+
+      - name: APK build karo
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleDebug
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ScriptVideo-APK
+          path: android/app/build/outputs/apk/debug/app-debug.apk
