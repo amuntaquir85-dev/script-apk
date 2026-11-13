@@ -1,0 +1,9 @@
+{
+  "appId": "com.scriptvideo.app",
+  "appName": "ScriptVideo",
+  "webDir": "www",
+  "server": {
+    "url": "https://YOUR-APP.onrender.com",
+    "cleartext": false
+  }
+}
